@@ -26,6 +26,10 @@ spectrum = model.get_spectrum(B_fields, B_angles, filling)
 plt.plot(B_angles, spectrum)
 ````
 
+## Citation
+1. E. Laird et al., Reviews of Modern Physics, 87, 703 (2015)
+2. D. H. Douglass, Phys Rev Lett, 6, 7 (1961)
+
 ## Help
 Type `help(cntSpectrum.get_spectrum)`
 
