@@ -92,7 +92,7 @@ class cntSpectrum:
         }
         model = cntSpectrum(**model_kw)
         B_fields = 2
-        B_angles = np.linspace(0, pi, 20)
+        B_angles = np.linspace(0, np.pi, 20)
         filling = 1
         spectrum = model.get_spectrum(B_fields, B_angles, filling)
         plt.plot(B_angles, spectrum)
