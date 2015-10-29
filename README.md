@@ -27,7 +27,7 @@ plt.plot(B_angles, spectrum)
 ````
 
 ## Help
-Type `help(cntSpectrum.get_spectrum)`
+Type `help(cntSpectrum)`
 
 
 ## Credit and Copyright
