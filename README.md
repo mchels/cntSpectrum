@@ -31,7 +31,7 @@ plt.plot(B_angles, spectrum)
 2. D. H. Douglass, Phys Rev Lett, 6, 7 (1961)
 
 ## Help
-Type `help(cntSpectrum.get_spectrum)`
+Type `help(cntSpectrum)`
 
 
 ## Credit and Copyright
