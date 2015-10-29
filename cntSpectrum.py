@@ -117,23 +117,51 @@ class cntSpectrum:
         spectrum = spectrum.squeeze()
         return spectrum
 
-    def get_ex_spectrum(self, *args, bias_offset=0):
+    def get_ex_spectrum(self, B_fields, B_angles, filling, bias_offset=0,
+                        deltaSC=None, BC=None):
         r"""
         Parameters
         ----------
-        Same as for get_spectrum
+        B_fields, B_angles, filling : Same as for get_spectrum.
         bias_offset : int or float
             Bias offset in meV.
+        deltaSC : int or float
+            Superconducting gap in meV.
+        BC : int or float
+            The critical magnetic field for the superconductor.
+            Both deltaSC and BC must be provided for the superconducting gap to
+            be added to the spectrum.
 
         Returns
         -------
         ex_spectrum : ndarray
             Excitation spectrum.
+
+        Notes
+        -----
+        - If
+            1) the nanotube forms a quantum dot
+            2) its spectrum is being probed by inelastic cotunneling excitation spectroscopy
+            3) one of the leads is a superconductor
+        a correction must be added to the excitation spectrum to account for
+        the suppression of cotunneling inside the superconducting gap.
+        - If both leads are identical superconductors, use 2*deltaSC for
+        deltaSC.
+        - This function does not support two superconducting leads with
+        dissimilar deltaSC or BC, although it can probably be hacked by taking
+        averages of the two deltaSC respectively BC.
+        - The superconducting gap as a function of magnetic field is calculated
+        as
+            deltaSC(B_field) = deltaSC(B_field=0) * sqrt(1-(B_field/BC)^2)
+        This equation is from D. H. Douglass, Phys Rev Lett, 6, 7 (1961).
         """
-        spectrum = self.get_spectrum(*args)
+        spectrum = self.get_spectrum(B_fields, B_angles, filling)
         lowest_energies = spectrum[...,0][...,np.newaxis]
         non_lowest_energies = spectrum[...,1:]
         ex_spectrum = non_lowest_energies - lowest_energies
+        if deltaSC is not None and BC is not None:
+            SC_gap = self._SC_gap(deltaSC, BC, B_fields, B_angles)
+            ex_spectrum += SC_gap[...,np.newaxis]
         # Stack negative excitation energies with the positive ones.
         axis = len(ex_spectrum.shape) - 1
         ex_spectrum = np.concatenate([ex_spectrum, -ex_spectrum], axis=axis)
@@ -157,6 +185,14 @@ class cntSpectrum:
         else:
             raise ValueError('self.filling is not 1, 2 or 3. Aborting.')
         return hamil
+
+    @staticmethod
+    def _SC_gap(deltaSC, BC, B_fields, B_angles):
+        _, B_field_mesh = np.meshgrid(B_angles, B_fields)
+        temp = 1 - (B_field_mesh/BC)**2
+        temp = temp.clip(min=0)
+        SC_gap = deltaSC * np.sqrt(temp)
+        return SC_gap.squeeze()
 
 
 # 1-electron matrices
