@@ -52,7 +52,8 @@ class cntSpectrum:
             err_str = 'Either g_orb exclusive or mu_orb must be a number.'
             raise TypeError(err_str)
 
-    def get_spectrum(self, B_fields, B_angles, filling):
+    def get_spectrum(self, B_fields, B_angles, filling,
+                     get_eigenvectors=False):
         r"""
         Parameters
         ----------
@@ -61,6 +62,9 @@ class cntSpectrum:
             B_angles is a list of the magnetic field angles which are
             measured from the axis of the nanotube.
         filling : int, must be 1, 2 or 3
+        get_eigenvectors : Boolean
+            Specify whether to return eigenvectors (states) along with
+            spectrum.
 
         Returns
         -------
@@ -72,6 +76,10 @@ class cntSpectrum:
             If either or both B_fields and B_angles are int or float the
             corresponding 0-d dimension is squeezed out of the output
             array.
+        states : ndarray
+            Eigenvectors for the system which are returned if get_eigenvectors
+            if True. states has dimensions of
+            B_fields x B_angles x n_states x n_states.
 
         Notes
         -----
@@ -107,15 +115,28 @@ class cntSpectrum:
             n_states = 6
         shape = (len(B_fields), len(B_angles), n_states)
         spectrum = np.zeros(shape=shape, dtype=float)
+        if get_eigenvectors:
+            shape = (len(B_fields), len(B_angles), n_states, n_states)
+            states = np.zeros(shape=shape, dtype=np.complex128)
         for i, B_field in enumerate(B_fields):
             for j, B_angle in enumerate(B_angles):
                 hamil = self._get_hamil(B_field, B_angle, filling)
-                eigvalues = np.linalg.eigvalsh(hamil)
-                spectrum[i,j] = np.sort(eigvalues)
+                if get_eigenvectors:
+                    eigenvalues, eigenvectors = np.linalg.eigh(hamil)
+                    indices_for_sorting = np.argsort(eigenvalues)
+                    spectrum[i,j] = eigenvalues[indices_for_sorting]
+                    states[i,j] = eigenvectors[:,indices_for_sorting]
+                else:
+                    eigenvalues = np.linalg.eigvalsh(hamil)
+                    spectrum[i,j] = np.sort(eigenvalues)
         # squeeze removes 0-d arrays that arise if either or both B_fields and
         # B_angles are integers or floats.
         spectrum = spectrum.squeeze()
-        return spectrum
+        if get_eigenvectors:
+            states = states.squeeze()
+            return (spectrum, states)
+        else:
+            return spectrum
 
     def get_ex_spectrum(self, B_fields, B_angles, filling, bias_offset=0,
                         deltaSC=None, BC=None):
