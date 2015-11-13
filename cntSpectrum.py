@@ -30,7 +30,7 @@ class cntSpectrum:
     band gap is much larger than the spin-orbit energy and the parallel
     magnetic field splitting.
 
-    The convention from the paper above is followed here:
+    We use the same convention for g_orb as in the paper above:
         g_orb = mu_orb / mu_B.
 
     deltaSO, deltaKK, g_orb and J are set at class instantiation and should
