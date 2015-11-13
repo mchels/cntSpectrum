@@ -1,15 +1,16 @@
 Carbon nanotube spectrum
 ========================
 
-Calculates carbon nanotube spectrum and excitation spectrum using the model
-in equation (25) in
+Calculates carbon nanotube spectrum and excitation spectrum using the Hamiltonian in equation (25) in
 
 E. Laird et al., Reviews of Modern Physics, 87, 703 (2015)
 
 All energy values are in milli-electronvolts.
 
 ## Example
+From simple_example.py:
 ````python
+from cntSpectrum import cntSpectrum
 import numpy as np
 import matplotlib.pyplot as plt
 model_kw = {
@@ -24,6 +25,7 @@ B_angles = np.linspace(0, np.pi, 20)
 filling = 1
 spectrum = model.get_spectrum(B_fields, B_angles, filling)
 plt.plot(B_angles, spectrum)
+plt.show()
 ````
 
 ## Citation
