@@ -73,9 +73,6 @@ class cntSpectrum:
             The spectrum array has dimensions of
             B_fields x B_angles x n_states
             where filling=(1,3): n_states=4. filling=2: n_states=6
-            If either or both B_fields and B_angles are int or float the
-            corresponding 0-d dimension is squeezed out of the output
-            array.
         states : ndarray
             Eigenvectors for the system which are returned if get_eigenvectors
             if True. states has dimensions of
@@ -129,11 +126,7 @@ class cntSpectrum:
                 else:
                     eigenvalues = np.linalg.eigvalsh(hamil)
                     spectrum[i,j] = np.sort(eigenvalues)
-        # squeeze removes 0-d arrays that arise if either or both B_fields and
-        # B_angles are integers or floats.
-        spectrum = spectrum.squeeze()
         if get_eigenvectors:
-            states = states.squeeze()
             return (spectrum, states)
         else:
             return spectrum
@@ -213,7 +206,7 @@ class cntSpectrum:
         temp = 1 - (B_field_mesh/BC)**2
         temp = temp.clip(min=0)
         SC_gap = deltaSC * np.sqrt(temp)
-        return SC_gap.squeeze()
+        return SC_gap
 
 
 # 1-electron matrices

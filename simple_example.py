@@ -13,5 +13,7 @@ B_fields = 2
 B_angles = np.linspace(0, np.pi, 20)
 filling = 1
 spectrum = model.get_spectrum(B_fields, B_angles, filling)
-plt.plot(B_angles, spectrum)
+# Plot spectrum.squeeze() instead of spectrum to remove single-dimensional
+# entries that arise because our B_fields is a number and not a list.
+plt.plot(B_angles, spectrum.squeeze())
 plt.show()

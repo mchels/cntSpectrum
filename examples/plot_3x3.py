@@ -64,7 +64,10 @@ for i, type in enumerate(types):
         elif type == 'angle':
             B_list_for_plotting = B_angles
         data_for_plotting = plot_func(B_fields, B_angles, filling)
-        ax.plot(B_list_for_plotting, data_for_plotting)
+        # Plot data_for_plotting.squeeze() instead of data_for_plotting to
+        # remove single-dimensional entries that arise because our B_fields is
+        # a number and not a list.
+        ax.plot(B_list_for_plotting, data_for_plotting.squeeze())
 
 fig.tight_layout()
-fig.savefig('plot.pdf')
+fig.savefig('plot_3x3.pdf')
