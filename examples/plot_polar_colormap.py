@@ -2,7 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 sys.path.append('..')
-from cntSpectrum import cntSpectrum
+from cntspectrum import cntSpectrum
 
 # Plot the energy of an excitation in the nanotube spectrum as a function of
 # magnetic field strength and angle as a polar plot.

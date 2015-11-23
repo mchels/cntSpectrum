@@ -2,7 +2,7 @@ import sys
 import matplotlib.pyplot as plt
 import numpy as np
 sys.path.append('..')
-from cntSpectrum import cntSpectrum
+from cntspectrum import cntSpectrum
 
 # Make a 3x3 plot of the nanotube spectrum or excitation spectrum with rows
 # representing parallel, perpendicular and angle sweeps and columns
