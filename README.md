@@ -10,7 +10,7 @@ All energy values are in milli-electronvolts.
 ## Example
 From simple_example.py:
 ````python
-from cntSpectrum import cntSpectrum
+from cntspectrum import cntSpectrum
 import numpy as np
 import matplotlib.pyplot as plt
 model_kw = {

@@ -1,6 +1,6 @@
 import sys
 sys.path.append('..')
-from cntSpectrum import cntSpectrum
+from cntspectrum import cntSpectrum
 from cntspin import cntSpin
 import numpy as np
 import matplotlib.pyplot as plt
