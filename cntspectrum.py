@@ -4,7 +4,7 @@ from numpy import cos, sin, sqrt
 # mu_B in units of milli electronvolts per Tesla
 MU_B = 0.0578
 
-class cntSpectrum:
+class cntSpectrum(object):
     r"""
     Get spectrum and excitation spectrum for a carbon nanotube.
 
