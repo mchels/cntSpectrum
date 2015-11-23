@@ -1,5 +1,5 @@
-# cntSpectrum.py must be located in the same folder as this file.
-from cntSpectrum import cntSpectrum
+# cntspectrum.py must be located in the same folder as this file.
+from cntspectrum import cntSpectrum
 import numpy as np
 import matplotlib.pyplot as plt
 model_kw = {
