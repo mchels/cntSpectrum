@@ -30,6 +30,9 @@ class cntSpectrum(object):
     band gap is much larger than the spin-orbit energy and the parallel
     magnetic field splitting.
 
+    The Hamiltonian is written in the basis Kup K'down Kdown K'up which is
+    called the 'default' basis in this module.
+
     We use the same convention for g_orb as in the paper above:
         g_orb = mu_orb / mu_B.
 
@@ -55,6 +58,9 @@ class cntSpectrum(object):
     def get_spectrum(self, B_fields, B_angles, filling,
                      get_eigenvectors=False):
         r"""
+        Get spectrum and eigenvectors for the specified parameters.
+        The basis is Kup K'down Kdown K'up.
+
         Parameters
         ----------
         B_fields, B_angles : array-like or int or float.

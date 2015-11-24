@@ -1,6 +1,14 @@
 import numpy as np
 from cntspin import cntSpin
 
+simple_basis_def = np.array([
+                       [1,0,0,0],
+                       [0,0,1,0],
+                       [0,0,0,1],
+                       [0,1,0,0],
+                   ])
+def_basis_simple = np.linalg.inv(simple_basis_def)
+
 # Tests for basis Kup Kdown K'up K'down
 def do_tests():
     cases = [
@@ -19,17 +27,11 @@ def do_tests():
     ]
     bases = [
         np.eye(4),
-        np.array([
-            [1,0,0,0],
-            [0,0,0,1],
-            [0,0,1,0],
-            [0,1,0,0],
-        ]),
     ]
     for basis in bases:
         foo = cntSpin(basis=basis)
         for case in cases:
-            state = basis @ case['state']
+            state = def_basis_simple @ case['state']
             actual_output = foo.get_spin_vector(state)
             desired_output = case['output']
             try:
