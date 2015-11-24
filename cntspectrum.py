@@ -14,9 +14,13 @@ class cntSpectrum(object):
         Value of the parameter in milli-electronvolts.
     g_orb : int or float, optional
         Orbital g-factor (unitless).
+        In the CONDUCTION band this is a NEGATIVE number
+        In the VALENCE band this is a POSITIVE number
         Either g_orb exclusive or mu_orb must be set.
     mu_orb : int or float, optional
         Orbital magnetic moment in units of milli-electronvolts per tesla.
+        In the CONDUCTION band this is a NEGATIVE number
+        In the VALENCE band this is a POSITIVE number
         Either g_orb exclusive or mu_orb must be set.
     bias_offset : int or float, optional
         Specify the bias offset to take into account when calculating
@@ -218,22 +222,22 @@ class cntSpectrum(object):
 # 1-electron matrices
 def h_0(deltaSO, deltaKK):
     matrix = 0.5*np.matrix([
-        [-deltaSO, 0       , 0      , deltaKK],
-        [0       , -deltaSO, deltaKK, 0      ],
-        [0       , deltaKK , deltaSO, 0      ],
-        [deltaKK , 0       , 0      , deltaSO]
+        [deltaSO, 0      , 0       , deltaKK ],
+        [0      , deltaSO, deltaKK , 0       ],
+        [0      , deltaKK, -deltaSO, 0       ],
+        [deltaKK, 0      , 0       , -deltaSO]
     ])
     return matrix
 
 def h_B(angle, g_orb):
     gs = 2
-    def diag(spin, tau):
-        return cos(angle) * (0.5*spin*gs+tau*g_orb)
+    def diag(tau, spin):
+        return cos(angle) * (tau*g_orb+0.5*spin*gs)
     matrix = MU_B * np.matrix([
         [diag(1,1) , 0          , sin(angle), 0         ],
         [0         , diag(-1,-1), 0         , sin(angle)],
-        [sin(angle), 0          , diag(-1,1), 0         ],
-        [0         , sin(angle) , 0         , diag(1,-1)]
+        [sin(angle), 0          , diag(1,-1), 0         ],
+        [0         , sin(angle) , 0         , diag(-1,1)]
     ])
     return matrix
 
