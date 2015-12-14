@@ -4,6 +4,9 @@ from numpy import cos, sin, sqrt
 # mu_B in units of milli electronvolts per Tesla
 MU_B = 0.0578
 
+# Spin electron g-factor
+GS = 2.0
+
 class cntSpectrum(object):
     r"""
     Get spectrum and excitation spectrum for a carbon nanotube.
@@ -25,6 +28,13 @@ class cntSpectrum(object):
     bias_offset : int or float, optional
         Specify the bias offset to take into account when calculating
         the excitation spectrum.
+
+    Attributes
+    ----------
+    Attributes include the parameters above and the following:
+    BSO : float
+        Magnitude of the spin-orbit magnetic field calculated as
+        BSO = self.deltaSO / (GS*MU_B)
 
     Notes
     -----
@@ -49,6 +59,7 @@ class cntSpectrum(object):
         self.deltaKK = deltaKK
         self.J = J
         self.bias_offset = bias_offset
+        self.BSO = deltaSO / (GS*MU_B)
         if type(g_orb) in (int, float) and mu_orb is None:
             self.g_orb = g_orb
             self.mu_orb = g_orb * MU_B
@@ -230,9 +241,8 @@ def h_0(deltaSO, deltaKK):
     return matrix
 
 def h_B(angle, g_orb):
-    gs = 2
     def diag(tau, spin):
-        return cos(angle) * (tau*g_orb+0.5*spin*gs)
+        return cos(angle) * (tau*g_orb+0.5*spin*GS)
     matrix = MU_B * np.matrix([
         [diag(1,1) , 0          , sin(angle), 0         ],
         [0         , diag(-1,-1), 0         , sin(angle)],
