@@ -53,22 +53,16 @@ class cntSpectrum(object):
     deltaSO, deltaKK, g_orb and J are set at class instantiation and should
     not be changed afterwards.
     """
-    def __init__(self, deltaSO, deltaKK, J, g_orb=None, mu_orb=None,
-                 bias_offset=0):
-        self.deltaSO = deltaSO
+    def __init__(self, deltaKK, J, deltaSO=None, BSO=None, g_orb=None,                 mu_orb=None, bias_offset=0):
         self.deltaKK = deltaKK
         self.J = J
         self.bias_offset = bias_offset
-        self.BSO = deltaSO / (GS*MU_B)
-        if type(g_orb) in (int, float) and mu_orb is None:
-            self.g_orb = g_orb
-            self.mu_orb = g_orb * MU_B
-        elif type(mu_orb) in (int, float) and g_orb is None:
-            self.g_orb = mu_orb / MU_B
-            self.mu_orb = mu_orb
-        else:
-            err_str = 'Either g_orb exclusive or mu_orb must be a number.'
-            raise TypeError(err_str)
+        assert (deltaSO is None) ^ (BSO is None)
+        self._deltaSO = deltaSO
+        self._BSO = BSO
+        assert (g_orb is None) ^ (mu_orb is None)
+        self._g_orb = g_orb
+        self._mu_orb = mu_orb
 
     def get_spectrum(self, B_fields, B_angles, filling,
                      get_eigenvectors=False):
@@ -228,6 +222,34 @@ class cntSpectrum(object):
         temp = temp.clip(min=0)
         SC_gap = deltaSC * np.sqrt(temp)
         return SC_gap
+
+    @property
+    def deltaSO(self):
+        if self._deltaSO is None:
+            return self._BSO * GS * MU_B
+        else:
+            return self._deltaSO
+
+    @property
+    def BSO(self):
+        if self._BSO is None:
+            return self._deltaSO / (GS*MU_B)
+        else:
+            return self._BSO
+
+    @property
+    def g_orb(self):
+        if self._g_orb is None:
+            return self._mu_orb / MU_B
+        else:
+            return self._g_orb
+
+    @property
+    def mu_orb(self):
+        if self._mu_orb is None:
+            return self._g_orb * MU_B
+        else:
+            return self._mu_orb
 
 
 # 1-electron matrices
