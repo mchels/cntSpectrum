@@ -9,7 +9,7 @@ from cntspectrum import cntSpectrum
 model_kw = {
    'deltaSO': 0.15,
    'deltaKK': 0.07,
-    'g_orb': 2.6,
+   'g_orb': 2.6,
    'J': 0.12,
 }
 model = cntSpectrum(**model_kw)
