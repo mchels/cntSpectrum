@@ -89,5 +89,5 @@ class cntSpin(object):
         Sy_exp = state_H @ self.Sy @ state
         Sz_exp = state_H @ self.Sz @ state
         spin_exp_vector = np.array([Sx_exp, Sy_exp, Sz_exp]).squeeze()
-        assert not any(spin_exp_vector.imag)
+        assert np.allclose(spin_exp_vector.imag, 0)
         return spin_exp_vector.real
