@@ -4,6 +4,8 @@ class cntSpin(object):
     r"""
     Class for getting expected value of <S_vector> = (<Sx>, <Sy>, <Sz>) for
     carbon nanotube states given a basis.
+    Currently, only fillings 1 and 3 are supported, that is, all matrices are
+    of size 4x4.
 
     Notes
     -----
@@ -91,3 +93,70 @@ class cntSpin(object):
         spin_exp_vector = np.array([Sx_exp, Sy_exp, Sz_exp]).squeeze()
         assert not any(spin_exp_vector.imag)
         return spin_exp_vector.real
+
+    def get_spin_vectors_from_eigenstates(self, eigenstates):
+        """
+        Calculate expectation value of the spin vector for all states in
+        eigenstates.
+
+        Parameters
+        ==========
+        eigenstates : ndarray
+            Any array for which the two inner-most dimensions both have size 4.
+            The inner-most dimension should contain the eigenstate components.
+            This parameter is designed to be provided by the 'states' output
+            from the cntspectrum.get_spectrum function. The 'states' output has
+            dimensions of
+                n_B_steps x n_B_angle_steps x n_states x n_states
+
+        Returns
+        =======
+        spin_vectors : ndarray
+            Contains the expectation value of the spin vector for all states in
+            the input eigenstates array.
+            If the 'states' output from the cntspectrum.get_spectrum function
+            is used as the eigenstates array above the spin_vectors array will
+            have dimensions of
+                n_B_steps x n_B_angle_steps x n_states x spatial_dimensions
+            where spatial_dimensions is 3 (obviously).
+
+        Notes
+        =====
+        This function depends on self through the basis used in
+        self.get_spin_vector.
+        """
+        spin_dimensions = 3
+        # Use the same shape for the spin_vectors array as for the eigenstates
+        # array EXCEPT that we want three entries (<Sx>, <Sy>, <Sz>) instead of
+        # four entries (the components of the four nanotube states) in the last
+        # dimension.
+        shape = eigenstates.shape[:-1] + (spin_dimensions,)
+        spin_vectors = np.zeros(shape=shape)
+        def loop_recursively(eigenstates, spin_vectors, indices=None):
+            """
+            For all states in the eigenstates array save the corresponding spin
+            vector in array spin_vectors.
+            A spin vector will have the same indices in spin_vectors as the
+            corresponding state in eigenstates.
+            The lowest two dimensions of the eigenstate array must contain a
+            n_states x n_states matrix with eigenvectors specified as columns.
+            """
+            n_states = 4
+            assert eigenstates.shape[-2:] == (n_states,n_states)
+            if indices is None:
+                indices = ()
+            if eigenstates.shape == (n_states,n_states):
+                for k, state in enumerate(eigenstates.T):
+                    spin_vector = self.get_spin_vector(state)
+                    spin_vectors[indices+(k,)] = spin_vector
+            elif len(eigenstates.shape) > 2:
+                for i in range(len(eigenstates)):
+                    loop_recursively(eigenstates[i], spin_vectors, indices=indices+(i,))
+            else:
+                error_str = (
+                    'This should never occur because of the assertion in the '
+                    'first line of the loop_recursively function.'
+                )
+                raise RuntimeError(error_str)
+        loop_recursively(eigenstates, spin_vectors)
+        return spin_vectors
