@@ -77,6 +77,7 @@ class cntSpectrum(object):
             B_angles is a list of the magnetic field angles which are
             measured from the axis of the nanotube.
         filling : int, must be 1, 2 or 3
+            filling=1 and filling=3 yield identical outputs.
         get_eigenvectors : Boolean
             Specify whether to return eigenvectors (states) along with
             spectrum.
@@ -118,6 +119,10 @@ class cntSpectrum(object):
         plt.plot(B_angles, spectrum)
         """
         assert filling in (1,2,3)
+        if filling == 3:
+            # Make it explicit that filling=3 and filling=1 do exactly the same
+            # thing in this function.
+            filling == 1
         # ravel ensures that B_fields and B_angles are iterable if they are int
         # or float.
         B_fields = np.ravel(B_fields)
@@ -185,6 +190,15 @@ class cntSpectrum(object):
         This equation is from D. H. Douglass, Phys Rev Lett, 6, 7 (1961).
         """
         spectrum = self.get_spectrum(B_fields, B_angles, filling)
+        if filling == 3:
+            # For filling == 3 we use the same spectrum as for filling == 1
+            # except that we are now putting a hole into an otherwise filled
+            # shell, not an electron in an empty shell. Thus, the correct
+            # excitation spectrum is obtained using the same method as for
+            # filling == 1 but with the negative spectrum. Also, the inner-most
+            # dimension is reversed so that the zeroth element is the smallest
+            # one.
+            spectrum = -spectrum[...,::-1]
         lowest_energies = spectrum[...,0][...,np.newaxis]
         non_lowest_energies = spectrum[...,1:]
         ex_spectrum = non_lowest_energies - lowest_energies
@@ -198,7 +212,7 @@ class cntSpectrum(object):
         return ex_spectrum
 
     def _get_hamil(self, B_field, B_tube_angle, filling):
-        if filling == 1:
+        if filling in (1,3):
             hamil = h_0(self.deltaSO, self.deltaKK) + \
                     B_field * h_B(B_tube_angle, self.g_orb)
         elif filling == 2:
@@ -208,9 +222,6 @@ class cntSpectrum(object):
                     self.J * h_ex + \
                     MU_B * B_field * cos(B_tube_angle) * h_bs + \
                     MU_B * B_field * sin(B_tube_angle) * h_perp
-        elif filling == 3:
-            hamil = h_0(-self.deltaSO, self.deltaKK) + \
-                    B_field * h_B(B_tube_angle, self.g_orb)
         else:
             raise ValueError('self.filling is not 1, 2 or 3. Aborting.')
         return hamil
