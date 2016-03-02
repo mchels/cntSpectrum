@@ -7,13 +7,13 @@ from numpy import pi
 
 """
 This script tests the current get_ex_spectrum function against experimental
-data.
+data for a shell in the conduction band.
 """
 
 model_kw = {
-    'deltaSO': -0.15,
+    'deltaSO': 0.15,
     'deltaKK': 0.07,
-    'mu_orb': 0.15,
+    'mu_orb': -0.15,
     'J': 0.12,
 }
 model = cntSpectrum(**model_kw)
