@@ -122,7 +122,7 @@ class cntSpectrum(object):
         if filling == 3:
             # Make it explicit that filling=3 and filling=1 do exactly the same
             # thing in this function.
-            filling == 1
+            filling = 1
         # ravel ensures that B_fields and B_angles are iterable if they are int
         # or float.
         B_fields = np.ravel(B_fields)
