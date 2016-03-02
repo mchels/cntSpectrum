@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 
 """
 For deltaKK'==0 The expectation value for the spin operator must always be
-parallel with the effective magnetic field B_ff:
+parallel or anti-parallel with the effective magnetic field B_ff:
       B_ff_x = B_xt_x           = B*sin(B_angle)
       B_ff_z = B_xt_z + tau*BSO = B*cos(B_angle) + tau*BSO
 where B_ff_i (B_xt_i) is the i'th component of the effective (external)
@@ -15,12 +15,15 @@ magnetic field, B_angle is the angle between the external magnetic field and
 the nanotube axis, tau is the valley number (+1 or -1) and BSO is the
 spin-orbit magnetic field in the nanotube. The z-direction is parallel to the
 nanotube axis.
+
+This script tests that the calculated expectation value for the spin operatorfor a given set of model parameters and a range of magnetic fields is parallel 
+or anti-parallel with the effective magnetic field for every state.
 """
 
 model_kw = {
     'deltaSO': 0.15,
     'deltaKK': 0.0,
-    'mu_orb': 0.15,
+    'mu_orb': -0.15,
     'J': 0.12,
 }
 model = cntSpectrum(**model_kw)
@@ -30,7 +33,7 @@ B_fields = np.linspace(0, 5, 101)
 # The upper limit is np.pi*1.01 to avoid having an angle of exactly pi/2. At
 # this angle the states are degenerate in pairs at any magnitude of the
 # B_field. Since any combination of the two spin states within a degenerate
-# pair is an eigenstate the spin expectation value is zero (I think).
+# pair is an energy eigenstate the spin expectation value is zero (I think).
 B_angles = np.linspace(0, np.pi*1.01, 91)
 spectrum, eigenvectors = model.get_spectrum(B_fields, B_angles, filling,
                                             get_eigenvectors=True)
