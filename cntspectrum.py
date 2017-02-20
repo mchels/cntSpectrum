@@ -157,7 +157,10 @@ class cntSpectrum(object):
         r"""
         Parameters
         ----------
-        B_fields, B_angles, filling : Same as for get_spectrum.
+        B_fields, B_angles : Same as for get_spectrum.
+        filling: : int, must be 1, 2 or 3
+            Filling=1 has different behavior from filling=3. In get_spectrum
+            they have the same behavior.
         bias_offset : int or float
             Bias offset in meV.
         deltaSC : int or float
