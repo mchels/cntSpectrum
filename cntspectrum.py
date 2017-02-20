@@ -53,7 +53,8 @@ class cntSpectrum(object):
     deltaSO, deltaKK, g_orb and J are set at class instantiation and should
     not be changed afterwards.
     """
-    def __init__(self, deltaKK, J, deltaSO=None, BSO=None, g_orb=None,                 mu_orb=None, bias_offset=0):
+    def __init__(self, deltaKK, J, deltaSO=None, BSO=None, g_orb=None,
+                 mu_orb=None, bias_offset=0):
         self.deltaKK = deltaKK
         self.J = J
         self.bias_offset = bias_offset
@@ -72,10 +73,10 @@ class cntSpectrum(object):
 
         Parameters
         ----------
-        B_fields, B_angles : array-like or int or float.
+        B_fields, B_angles : 1D arrays or int or float.
             B_fields is a list of magnetic field strengths.
-            B_angles is a list of the magnetic field angles which are
-            measured from the axis of the nanotube.
+            B_angles is a list of the magnetic field angles in radians. The
+            nanotube is assumed to be oriented along 0 radians.
         filling : int, must be 1, 2 or 3
             filling=1 and filling=3 yield identical outputs.
         get_eigenvectors : Boolean
@@ -86,13 +87,13 @@ class cntSpectrum(object):
         -------
         spectrum : ndarray
             If B_fields and B_angles are arrays:
-            The spectrum array has dimensions of
-            B_fields x B_angles x n_states
+            The spectrum array has shape
+            len(B_fields) x len(B_angles) x n_states
             where filling=(1,3): n_states=4. filling=2: n_states=6
         states : ndarray
             Eigenvectors for the system which are returned if get_eigenvectors
-            if True. states has dimensions of
-            B_fields x B_angles x n_states x n_states.
+            if True. states has shape
+            len(B_fields) x len(B_angles) x n_states x n_states.
 
         Notes
         -----
@@ -174,8 +175,9 @@ class cntSpectrum(object):
         Notes
         -----
         - If
-            1) the nanotube forms a quantum dot
-            2) its spectrum is being probed by inelastic cotunneling excitation spectroscopy
+            1) the nanotube forms a quantum dot,
+            2) spectrum of the nanotube is being probed by inelastic cotunneling
+               excitation spectroscopy, and
             3) one of the leads is a superconductor
         a correction must be added to the excitation spectrum to account for
         the suppression of cotunneling inside the superconducting gap.
