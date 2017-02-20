@@ -7,8 +7,9 @@ E. Laird et al., Reviews of Modern Physics, 87, 703 (2015)
 
 All energy values are in milli-electronvolts.
 
+
 ## Example
-From simple_example.py:
+This piece of code from simple_example.py
 ````python
 from cntspectrum import cntSpectrum
 import numpy as np
@@ -21,16 +22,24 @@ model_kw = {
 }
 model = cntSpectrum(**model_kw)
 B_fields = 2
-B_angles = np.linspace(0, np.pi, 20)
+B_angles = np.linspace(0, np.pi, 46)
 filling = 1
 spectrum = model.get_spectrum(B_fields, B_angles, filling)
-plt.plot(B_angles, spectrum)
+fig, ax = plt.subplots()
+ax.plot(B_angles, spectrum.squeeze())
+ax.set_xlabel('Magnetic field angle (radians)')
+ax.set_ylabel('Energy (meV)')
 plt.show()
 ````
+yields the figure
+
+![](example.png)
+
 
 ## Citation
 1. E. Laird et al., Reviews of Modern Physics, 87, 703 (2015)
 2. D. H. Douglass, Phys Rev Lett, 6, 7 (1961)
+
 
 ## Help
 Type `help(cntSpectrum)`
