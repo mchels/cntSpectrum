@@ -217,6 +217,25 @@ class cntSpectrum(object):
         return ex_spectrum
 
     def _get_hamil(self, B_field, B_tube_angle, filling):
+        """
+        Get Hamiltonian for the given parameters.
+
+        Parameters
+        ----------
+        B_field : float
+            Magnetic field magnitude in units of Tesla. Note that this method
+            does NOT accept lists or arrays for B_field.
+        B_tube_angle : float
+            Angle between magnetic field and nanotube in units of radians. Note
+            that this method does NOT accept lists or arrays for B_tube_angle.
+        filling : int, must be 1, 2 or 3
+            filling=1 and filling=3 yield identical outputs.
+
+        Returns
+        -------
+        hamil: ndarray
+            Hamiltonian for the given parameters.
+        """
         if filling in (1,3):
             hamil = h_0(self.deltaSO, self.deltaKK) + \
                     B_field * h_B(B_tube_angle, self.g_orb)
