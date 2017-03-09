@@ -60,6 +60,7 @@ class cntSpectrum(object):
     g_s = 2.0
 
     # 1 and 3-electron Hamiltonian matrices.
+    # The first (second) Pauli matrices below works in valley (spin) space.
     h_pauli = {
         'SO': (msigma(3), msigma(3)),
         'KK': (msigma(1), sy.eye(2)),
