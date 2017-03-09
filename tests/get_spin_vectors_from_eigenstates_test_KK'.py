@@ -16,7 +16,9 @@ the nanotube axis, tau is the valley number (+1 or -1) and BSO is the
 spin-orbit magnetic field in the nanotube (=0 for deltaSO=0). The z-direction
 is parallel to the nanotube axis.
 
-This script tests that the calculated expectation value for the spin operatorfor a deltaSO==0 and deltaKK' not zero and a range of magnetic fields is parallel or anti-parallel with the effective magnetic field for every state.
+This script tests that the calculated expectation value for the spin operator
+for a deltaSO==0 and deltaKK' not zero and a range of magnetic fields is
+parallel or anti-parallel with the effective magnetic field for every state.
 """
 
 model_kw = {
@@ -34,8 +36,8 @@ B_fields = np.linspace(0, 5, 101)
 # B_field. Since any combination of the two spin states within a degenerate
 # pair is an energy eigenstate the spin expectation value is zero (I think).
 B_angles = np.linspace(0, np.pi*1.01, 91)
-spectrum, eigenvectors = model.get_spectrum(B_fields, B_angles, filling,
-                                            get_eigenvectors=True)
+spectrum, eigenvectors = model.get_spectrums(B_fields, B_angles, filling,
+                                             get_eigenvectors=True)
 spin_vectors = spin.get_spin_vectors_from_eigenstates(eigenvectors)
 for i, B_field in enumerate(B_fields):
     for j, B_angle in enumerate(B_angles):

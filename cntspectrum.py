@@ -1,15 +1,14 @@
 import numpy as np
-from numpy import cos, sin, sqrt
+import sympy as sy
+from sympy.physics.matrices import msigma
+from sympy.physics.quantum import TensorProduct
+from basis import simple_to_def, def_to_simple, sy_mat_to_np
 
-# mu_B in units of milli electronvolts per Tesla
-MU_B = 0.0578
-
-# Spin electron g-factor
-GS = 2.0
 
 class cntSpectrum(object):
     r"""
-    Get spectrum and excitation spectrum for a carbon nanotube.
+    Get spectrum, excitation spectrum and Hamiltonians for a carbon nanotube
+    model.
 
     Parameters
     ----------
@@ -34,7 +33,7 @@ class cntSpectrum(object):
     Attributes include the parameters above and the following:
     BSO : float
         Magnitude of the spin-orbit magnetic field calculated as
-        BSO = self.deltaSO / (GS*MU_B)
+        BSO = self.deltaSO / (self.g_s*self.mu_B)
 
     Notes
     -----
@@ -53,6 +52,76 @@ class cntSpectrum(object):
     deltaSO, deltaKK, g_orb and J are set at class instantiation and should
     not be changed afterwards.
     """
+
+    # mu_B in units of milli electronvolts per Tesla
+    mu_B = 0.0578
+
+    # Spin electron g-factor
+    g_s = 2.0
+
+    # 1 and 3-electron Hamiltonian matrices.
+    h_pauli = {
+        'SO': (msigma(3), msigma(3)),
+        'KK': (msigma(1), sy.eye(2)),
+        'orb': (msigma(3), sy.eye(2)),
+        'par': (sy.eye(2), msigma(3)),
+        'perp': (sy.eye(2), msigma(1)),
+    }
+    sub_Hs = {k: simple_to_def(TensorProduct(*v)) for k, v in h_pauli.items()}
+    sub_Hs_np = {k: sy_mat_to_np(v) for k, v in sub_Hs.items()}
+
+    # 2-electron Hamiltonian matrices.
+    sub_Hs_N2 = {
+        'SO': np.array([
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+        ]),
+        'KK': np.array([
+            [0, 1, 0, 0, 0, 0],
+            [1, 0, 1, 0, 0, 0],
+            [0, 1, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+        ]),
+        'orb': np.array([
+            [1, 0,  0, 0, 0, 0],
+            [0, 0,  0, 0, 0, 0],
+            [0, 0, -1, 0, 0, 0],
+            [0, 0,  0, 0, 0, 0],
+            [0, 0,  0, 0, 0, 0],
+            [0, 0,  0, 0, 0, 0],
+        ]),
+        'par': np.array([
+            [0, 0, 0, 0, 0,  0],
+            [0, 0, 0, 0, 0,  0],
+            [0, 0, 0, 0, 0,  0],
+            [0, 0, 0, 1, 0,  0],
+            [0, 0, 0, 0, 0,  0],
+            [0, 0, 0, 0, 0, -1],
+        ]),
+        'perp': np.array([
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 1, 0],
+            [0, 0, 0, 1, 0, 1],
+            [0, 0, 0, 0, 1, 0],
+        ]),
+        'ex': np.array([
+            [0, 0, 0,  0,  0,  0],
+            [0, 1, 0,  0,  0,  0],
+            [0, 0, 0,  0,  0,  0],
+            [0, 0, 0, -1,  0,  0],
+            [0, 0, 0,  0, -1,  0],
+            [0, 0, 0,  0,  0, -1],
+        ]),
+    }
+
     def __init__(self, deltaKK, J, deltaSO=None, BSO=None, g_orb=None,
                  mu_orb=None, bias_offset=0):
         self.deltaKK = deltaKK
@@ -65,16 +134,16 @@ class cntSpectrum(object):
         self._g_orb = g_orb
         self._mu_orb = mu_orb
 
-    def get_spectrum(self, B_fields, B_angles, filling,
-                     get_eigenvectors=False):
+    def get_spectrums(self, B_fields, B_angles, filling,
+                      get_eigenvectors=False):
         r"""
-        Get spectrum and eigenvectors for the specified parameters.
+        Get spectrums and eigenvectors for the given Hamiltonians.
         The basis is Kup K'down Kdown K'up.
 
         Parameters
         ----------
         B_fields, B_angles : 1D arrays or int or float.
-            B_fields is a list of magnetic field strengths.
+            B_fields is a list of magnetic field strengths in Tesla.
             B_angles is a list of the magnetic field angles in radians. The
             nanotube is assumed to be oriented along 0 radians.
         filling : int, must be 1, 2 or 3
@@ -89,10 +158,10 @@ class cntSpectrum(object):
             If B_fields and B_angles are arrays:
             The spectrum array has shape
             len(B_fields) x len(B_angles) x n_states
-            where filling=(1,3): n_states=4. filling=2: n_states=6
+            where filling=(1,3): n_states=4; filling=2: n_states=6
         states : ndarray
             Eigenvectors for the system which are returned if get_eigenvectors
-            if True. states has shape
+            is True. If B_fields and B_angles are arrays states has shape
             len(B_fields) x len(B_angles) x n_states x n_states.
 
         Notes
@@ -116,57 +185,35 @@ class cntSpectrum(object):
         B_fields = 2
         B_angles = np.linspace(0, np.pi, 20)
         filling = 1
-        spectrum = model.get_spectrum(B_fields, B_angles, filling)
-        plt.plot(B_angles, spectrum)
+        spectrums = model.get_spectrums(B_fields, B_angles, filling)
+        plt.plot(B_angles, spectrums.squeeze())
         """
-        assert filling in (1,2,3)
-        if filling == 3:
-            # Make it explicit that filling=3 and filling=1 do exactly the same
-            # thing in this function.
-            filling = 1
-        # ravel ensures that B_fields and B_angles are iterable if they are int
-        # or float.
-        B_fields = np.ravel(B_fields)
-        B_angles = np.ravel(B_angles)
-        n_states = 4
-        if filling == 2:
-            n_states = 6
-        shape = (len(B_fields), len(B_angles), n_states)
-        spectrum = np.zeros(shape=shape, dtype=float)
+        hamils = self.get_hamils(B_fields, B_angles, filling)
         if get_eigenvectors:
-            shape = (len(B_fields), len(B_angles), n_states, n_states)
-            states = np.zeros(shape=shape, dtype=np.complex128)
-        for i, B_field in enumerate(B_fields):
-            for j, B_angle in enumerate(B_angles):
-                hamil = self._get_hamil(B_field, B_angle, filling)
-                if get_eigenvectors:
-                    eigenvalues, eigenvectors = np.linalg.eigh(hamil)
-                    indices_for_sorting = np.argsort(eigenvalues)
-                    spectrum[i,j] = eigenvalues[indices_for_sorting]
-                    states[i,j] = eigenvectors[:,indices_for_sorting]
-                else:
-                    eigenvalues = np.linalg.eigvalsh(hamil)
-                    spectrum[i,j] = np.sort(eigenvalues)
-        if get_eigenvectors:
-            return (spectrum, states)
+            spectrums, eigvecs = np.linalg.eigh(hamils)
+            return (spectrums, eigvecs)
         else:
-            return spectrum
+            spectrums = np.linalg.eigvalsh(hamils)
+            return spectrums
 
-    def get_ex_spectrum(self, B_fields, B_angles, filling, bias_offset=0,
-                        deltaSC=None, BC=None):
+    def get_ex_spectrums(self, B_fields, B_angles, filling, bias_offset=0,
+                         deltaSC=None, BC=None):
         r"""
         Parameters
         ----------
-        B_fields, B_angles : Same as for get_spectrum.
+        B_fields, B_angles : 1D arrays or int or float.
+            B_fields is a list of magnetic field strengths in Tesla.
+            B_angles is a list of the magnetic field angles in radians. The
+            nanotube is assumed to be oriented along 0 radians.
         filling: : int, must be 1, 2 or 3
-            Filling=1 has different behavior from filling=3. In get_spectrum
+            filling=1 has different behavior from filling=3. In get_spectrum
             they have the same behavior.
         bias_offset : int or float
             Bias offset in meV.
         deltaSC : int or float
             Superconducting gap in meV.
         BC : int or float
-            The critical magnetic field for the superconductor.
+            The critical magnetic field for the superconductor in Tesla.
             Both deltaSC and BC must be provided for the superconducting gap to
             be added to the spectrum.
 
@@ -194,40 +241,38 @@ class cntSpectrum(object):
             deltaSC(B_field) = deltaSC(B_field=0) * sqrt(1-(B_field/BC)^2)
         This equation is from D. H. Douglass, Phys Rev Lett, 6, 7 (1961).
         """
-        spectrum = self.get_spectrum(B_fields, B_angles, filling)
+        spectrums = self.get_spectrums(B_fields, B_angles, filling)
         if filling == 3:
-            # For filling == 3 we use the same spectrum as for filling == 1
+            # For filling == 3 we use the same spectrums as for filling == 1
             # except that we are now putting a hole into an otherwise filled
             # shell, not an electron in an empty shell. Thus, the correct
-            # excitation spectrum is obtained using the same method as for
-            # filling == 1 but with the negative spectrum. Also, the inner-most
+            # excitation spectrums is obtained using the same method as for
+            # filling == 1 but with the negative spectrums. Also, the inner-most
             # dimension is reversed so that the zeroth element is the smallest
             # one.
-            spectrum = -spectrum[...,::-1]
-        lowest_energies = spectrum[...,0][...,np.newaxis]
-        non_lowest_energies = spectrum[...,1:]
-        ex_spectrum = non_lowest_energies - lowest_energies
+            spectrums = -spectrums[...,::-1]
+        lowest_energies = spectrums[...,0][...,np.newaxis]
+        non_lowest_energies = spectrums[...,1:]
+        ex_spectrums = non_lowest_energies - lowest_energies
         if deltaSC is not None and BC is not None:
             SC_gap = self._SC_gap(deltaSC, BC, B_fields, B_angles)
-            ex_spectrum += SC_gap[...,np.newaxis]
+            ex_spectrums += SC_gap[...,np.newaxis]
         # Stack negative excitation energies with the positive ones.
-        axis = len(ex_spectrum.shape) - 1
-        ex_spectrum = np.concatenate([ex_spectrum, -ex_spectrum], axis=axis)
-        ex_spectrum += bias_offset
-        return ex_spectrum
+        ex_spectrums = np.concatenate([ex_spectrums, -ex_spectrums], axis=-1)
+        ex_spectrums += bias_offset
+        return ex_spectrums
 
-    def _get_hamil(self, B_field, B_tube_angle, filling):
+    def get_hamils(self, B_fields, B_angles, filling):
         """
         Get Hamiltonian for the given parameters.
+        The basis is Kup K'down Kdown K'up.
 
         Parameters
         ----------
-        B_field : float
-            Magnetic field magnitude in units of Tesla. Note that this method
-            does NOT accept lists or arrays for B_field.
-        B_tube_angle : float
-            Angle between magnetic field and nanotube in units of radians. Note
-            that this method does NOT accept lists or arrays for B_tube_angle.
+        B_fields, B_angles : 1D arrays or int or float.
+            B_fields is a list of magnetic field strengths in Tesla.
+            B_angles is a list of the magnetic field angles in radians. The
+            nanotube is assumed to be oriented along 0 radians.
         filling : int, must be 1, 2 or 3
             filling=1 and filling=3 yield identical outputs.
 
@@ -236,19 +281,25 @@ class cntSpectrum(object):
         hamil: ndarray
             Hamiltonian for the given parameters.
         """
-        if filling in (1,3):
-            hamil = h_0(self.deltaSO, self.deltaKK) + \
-                    B_field * h_B(B_tube_angle, self.g_orb)
+        # ravel ensures that B_fields and B_angles are iterable if they are not
+        # already.
+        B_fields = np.ravel(B_fields)
+        B_angles = np.ravel(B_angles)
+        B_fields_4D = B_fields[:,np.newaxis,np.newaxis,np.newaxis]
+        B_angles_4D = B_angles[np.newaxis,:,np.newaxis,np.newaxis]
+        g_orb = self.g_orb
+        deltaSO = self.deltaSO
+        deltaKK = self.deltaKK
+        if filling in (1, 3):
+            hamils = self.H_total(B_fields_4D, B_angles_4D, deltaSO, deltaKK,
+                                  g_orb)
         elif filling == 2:
-            hamil = self.deltaSO * h_SO + \
-                    self.deltaKK * h_KK + \
-                    self.g_orb * B_field * MU_B * cos(B_tube_angle) * h_borb + \
-                    self.J * h_ex + \
-                    MU_B * B_field * cos(B_tube_angle) * h_bs + \
-                    MU_B * B_field * sin(B_tube_angle) * h_perp
+            J = self.J
+            hamils = self.H_total_N2(B_fields_4D, B_angles_4D, deltaSO, deltaKK,
+                                     g_orb, J)
         else:
             raise ValueError('self.filling is not 1, 2 or 3. Aborting.')
-        return hamil
+        return hamils
 
     @staticmethod
     def _SC_gap(deltaSC, BC, B_fields, B_angles):
@@ -258,107 +309,127 @@ class cntSpectrum(object):
         SC_gap = deltaSC * np.sqrt(temp)
         return SC_gap
 
+    @classmethod
+    def H_SO(cls, deltaSO):
+        mat = cls.sub_Hs_np['SO']
+        return 1 / 2 * deltaSO * mat
+
+    @classmethod
+    def H_KK(cls, deltaKK):
+        mat = cls.sub_Hs_np['KK']
+        return 1 / 2 * deltaKK * mat
+
+    @classmethod
+    def H_orb(cls, B_fields, B_angles, g_orb):
+        mat = cls.sub_Hs_np['orb']
+        mu_B = cls.mu_B
+        return B_fields * np.cos(B_angles) * g_orb * mu_B * mat
+
+    @classmethod
+    def H_par(cls, B_fields, B_angles):
+        mat = cls.sub_Hs_np['par']
+        g_s = cls.g_s
+        mu_B = cls.mu_B
+        return 1 / 2 * B_fields * np.cos(B_angles) * g_s * mu_B * mat
+
+    @classmethod
+    def H_perp(cls, B_fields, B_angles):
+        mat = cls.sub_Hs_np['perp']
+        g_s = cls.g_s
+        mu_B = cls.mu_B
+        return 1 / 2 * B_fields * np.sin(B_angles) * g_s * mu_B * mat
+
+    @classmethod
+    def H_total(cls, B_fields, B_angles, deltaSO, deltaKK, g_orb):
+        Bf = B_fields
+        Ba = B_angles
+        H_SO = cls.H_SO(deltaSO)
+        H_KK = cls.H_KK(deltaKK)
+        H_orb = cls.H_orb(Bf, Ba, g_orb)
+        H_par = cls.H_par(Bf, Ba)
+        H_perp = cls.H_perp(Bf, Ba)
+        # Insert np.newaxis in H_SO and H_KK that do not depend on magnetic
+        # field and thus do not have magnetic field dimensions.
+        H_total = H_SO[np.newaxis,np.newaxis,:,:] + \
+                  H_KK[np.newaxis,np.newaxis,:,:] + H_orb + H_par + H_perp
+        return H_total
+
+    @classmethod
+    def H_SO_N2(cls, deltaSO):
+        mat = cls.sub_Hs_N2['SO']
+        return deltaSO * mat
+
+    @classmethod
+    def H_KK_N2(cls, deltaKK):
+        mat = cls.sub_Hs_N2['KK']
+        return 1 / np.sqrt(2.0) * deltaKK * mat
+
+    @classmethod
+    def H_orb_N2(cls, B_fields, B_angles, g_orb):
+        mat = cls.sub_Hs_N2['orb']
+        mu_B = cls.mu_B
+        return 2 * B_fields * np.cos(B_angles) * g_orb * mu_B * mat
+
+    @classmethod
+    def H_par_N2(cls, B_fields, B_angles):
+        mat = cls.sub_Hs_N2['par']
+        g_s = cls.g_s
+        mu_B = cls.mu_B
+        return B_fields * np.cos(B_angles) * g_s * mu_B * mat
+
+    @classmethod
+    def H_perp_N2(cls, B_fields, B_angles):
+        mat = cls.sub_Hs_N2['perp']
+        g_s = cls.g_s
+        mu_B = cls.mu_B
+        return 1 / np.sqrt(2.0) * B_fields * np.sin(B_angles) * g_s * mu_B * mat
+
+    @classmethod
+    def H_ex_N2(cls, J):
+        mat = cls.sub_Hs_N2['ex']
+        return 1 / 2 * J * mat
+
+    @classmethod
+    def H_total_N2(cls, B_fields, B_angles, deltaSO, deltaKK, g_orb, J):
+        Bf = B_fields
+        Ba = B_angles
+        H_SO = cls.H_SO_N2(deltaSO)
+        H_KK = cls.H_KK_N2(deltaKK)
+        H_orb = cls.H_orb_N2(Bf, Ba, g_orb)
+        H_par = cls.H_par_N2(Bf, Ba)
+        H_perp = cls.H_perp_N2(Bf, Ba)
+        H_ex = cls.H_ex_N2(J)
+        # Insert np.newaxis in H_SO, H_KK and H_ex that do not depend on
+        # magnetic field and thus do not have magnetic field dimensions.
+        H_total = H_SO[np.newaxis,np.newaxis,:,:] + \
+                  H_KK[np.newaxis,np.newaxis,:,:] + \
+                  H_ex[np.newaxis,np.newaxis,:,:] + H_orb + H_par + H_perp
+        return H_total
+
     @property
     def deltaSO(self):
         if self._deltaSO is None:
-            return self._BSO * GS * MU_B
+            return self._BSO * self.g_s * self.mu_B
         else:
             return self._deltaSO
 
     @property
     def BSO(self):
         if self._BSO is None:
-            return self._deltaSO / (GS*MU_B)
+            return self._deltaSO / (self.g_s*self.mu_B)
         else:
             return self._BSO
 
     @property
     def g_orb(self):
         if self._g_orb is None:
-            return self._mu_orb / MU_B
+            return self._mu_orb / self.mu_B
         else:
             return self._g_orb
 
     @property
     def mu_orb(self):
         if self._mu_orb is None:
-            return self._g_orb * MU_B
+            return self._g_orb * self.mu_B
         else:
             return self._mu_orb
-
-
-# 1-electron matrices
-def h_0(deltaSO, deltaKK):
-    matrix = 0.5*np.matrix([
-        [deltaSO, 0      , 0       , deltaKK ],
-        [0      , deltaSO, deltaKK , 0       ],
-        [0      , deltaKK, -deltaSO, 0       ],
-        [deltaKK, 0      , 0       , -deltaSO]
-    ])
-    return matrix
-
-def h_B(angle, g_orb):
-    def diag(tau, spin):
-        return cos(angle) * (tau*g_orb+0.5*spin*GS)
-    matrix = MU_B * np.matrix([
-        [diag(1,1) , 0          , sin(angle), 0         ],
-        [0         , diag(-1,-1), 0         , sin(angle)],
-        [sin(angle), 0          , diag(1,-1), 0         ],
-        [0         , sin(angle) , 0         , diag(-1,1)]
-    ])
-    return matrix
-
-# 2-electron Hamiltonians.
-h_SO = np.matrix([
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-])
-
-h_KK = 1/sqrt(2.0)*np.matrix([
-        [0, 1, 0, 0, 0, 0],
-        [1, 0, 1, 0, 0, 0],
-        [0, 1, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-])
-
-h_ex = 0.5*np.matrix([
-        [0, 0, 0,  0,  0,  0],
-        [0, 1, 0,  0,  0,  0],
-        [0, 0, 0,  0,  0,  0],
-        [0, 0, 0, -1,  0,  0],
-        [0, 0, 0,  0, -1,  0],
-        [0, 0, 0,  0,  0, -1],
-])
-
-h_borb = 2*np.matrix([
-        [1, 0,  0, 0, 0, 0],
-        [0, 0,  0, 0, 0, 0],
-        [0, 0, -1, 0, 0, 0],
-        [0, 0,  0, 0, 0, 0],
-        [0, 0,  0, 0, 0, 0],
-        [0, 0,  0, 0, 0, 0],
-])
-
-h_bs = 2*np.matrix([
-        [0, 0, 0, 0, 0,  0],
-        [0, 0, 0, 0, 0,  0],
-        [0, 0, 0, 0, 0,  0],
-        [0, 0, 0, 1, 0,  0],
-        [0, 0, 0, 0, 0,  0],
-        [0, 0, 0, 0, 0, -1],
-])
-
-h_perp = sqrt(2.0)*np.matrix([
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 1, 0],
-        [0, 0, 0, 1, 0, 1],
-        [0, 0, 0, 0, 1, 0],
-])

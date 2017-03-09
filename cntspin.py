@@ -105,7 +105,7 @@ class cntSpin(object):
             Any array for which the two inner-most dimensions both have size 4.
             The inner-most dimension should contain the eigenstate components.
             This parameter is designed to be provided by the 'states' output
-            from the cntspectrum.get_spectrum function. The 'states' output has
+            from the cntspectrum.get_spectrums function. The 'states' output has
             dimensions of
                 n_B_steps x n_B_angle_steps x n_states x n_states
 
@@ -114,7 +114,7 @@ class cntSpin(object):
         spin_vectors : ndarray
             Contains the expectation value of the spin vector for all states in
             the input eigenstates array.
-            If the 'states' output from the cntspectrum.get_spectrum function
+            If the 'states' output from the cntspectrum.get_spectrums function
             is used as the eigenstates array above the spin_vectors array will
             have dimensions of
                 n_B_steps x n_B_angle_steps x n_states x spatial_dimensions

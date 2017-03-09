@@ -12,11 +12,11 @@ model = cntSpectrum(**model_kw)
 B_fields = 2
 B_angles = np.linspace(0, np.pi, 46)
 filling = 1
-spectrum = model.get_spectrum(B_fields, B_angles, filling)
-# Plot spectrum.squeeze() instead of spectrum to remove single-dimensional
+spectrums = model.get_spectrums(B_fields, B_angles, filling)
+# Plot spectrums.squeeze() instead of spectrums to remove single-dimensional
 # entries that arise because our B_fields is a number and not a list.
 fig, ax = plt.subplots()
-ax.plot(B_angles, spectrum.squeeze())
+ax.plot(B_angles, spectrums.squeeze())
 ax.set_xlabel('Magnetic field angle (radians)')
 ax.set_ylabel('Energy (meV)')
 plt.savefig('example.png')

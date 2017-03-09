@@ -6,7 +6,7 @@ import numpy as np
 from numpy import pi
 
 """
-This script tests the current get_ex_spectrum function against experimental
+This script tests the current get_ex_spectrums function against experimental
 data for a shell in the conduction band.
 """
 
@@ -33,7 +33,7 @@ for type in ('B_field', 'B_field_perp', 'B_angle'):
     B_fields = B_fields_dict[type]
     B_angles = B_angles_dict[type]
     for filling in (1,2,3):
-        ex_spectrum = model.get_ex_spectrum(
+        ex_spectrums = model.get_ex_spectrums(
             B_fields,
             B_angles,
             filling,
@@ -44,4 +44,4 @@ for type in ('B_field', 'B_field_perp', 'B_angle'):
         fname = str(filling) + type + '.dat'
         fpath = os.path.relpath('reference_data_get_ex_spectrum/' + fname)
         reference_data = np.loadtxt(fpath)
-        assert np.allclose(ex_spectrum.squeeze(), reference_data)
+        assert np.allclose(ex_spectrums.squeeze(), reference_data)
