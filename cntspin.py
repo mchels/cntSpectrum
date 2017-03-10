@@ -50,7 +50,7 @@ class cntSpin(object):
     def __init__(self, basis=None):
         """
         Parameters
-        ==========
+        ----------
         basis : ndarray
             4x4 matrix which changes the basis of the spin matrices relative to
             the default basis Kup K'down Kdown K'up.
@@ -76,13 +76,13 @@ class cntSpin(object):
     def get_spin_vector(self, state):
         """
         Parameters
-        ==========
+        ----------
         state : ndarray
             Column vector with four entries specifying a state in the basis
             specified by self.basis.
 
         Returns
-        =======
+        -------
         spin_exp_vector : ndarray
             Expectation value of the spin vector <S_vec> = (<Sx>, <Sy>, <Sz>).
         """
@@ -100,7 +100,7 @@ class cntSpin(object):
         eigenstates.
 
         Parameters
-        ==========
+        ----------
         eigenstates : ndarray
             Any array for which the two inner-most dimensions both have size 4.
             The inner-most dimension should contain the eigenstate components.
@@ -110,7 +110,7 @@ class cntSpin(object):
                 n_B_steps x n_B_angle_steps x n_states x n_states
 
         Returns
-        =======
+        -------
         spin_vectors : ndarray
             Contains the expectation value of the spin vector for all states in
             the input eigenstates array.
@@ -121,7 +121,7 @@ class cntSpin(object):
             where spatial_dimensions is 3 (obviously).
 
         Notes
-        =====
+        -----
         This function depends on self through the basis used in
         self.get_spin_vector.
         """
