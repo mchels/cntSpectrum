@@ -4,11 +4,11 @@ import numpy as np
 from cntspin import cntSpin
 
 simple_basis_def = np.array([
-                       [1,0,0,0],
-                       [0,0,1,0],
-                       [0,0,0,1],
-                       [0,1,0,0],
-                   ])
+    [1,0,0,0],
+    [0,0,1,0],
+    [0,0,0,1],
+    [0,1,0,0],
+])
 def_basis_simple = np.linalg.inv(simple_basis_def)
 
 # Tests for basis Kup Kdown K'up K'down
