@@ -26,20 +26,20 @@ class cntSpin(object):
         is identical to the 'default' basis.
     """
     # Pauli matrices
-    pauliX = np.matrix([[0,1],[1,0]], dtype=np.complex128)
-    pauliY = np.matrix([[0,-1j],[1j,0]], dtype=np.complex128)
-    pauliZ = np.matrix([[1,0],[0,-1]], dtype=np.complex128)
+    pauliX = np.array([[0,1],[1,0]], dtype=np.complex128)
+    pauliY = np.array([[0,-1j],[1j,0]], dtype=np.complex128)
+    pauliZ = np.array([[1,0],[0,-1]], dtype=np.complex128)
     pauliI = np.eye(2, dtype=np.complex128)
     # Matrix that changes from the 'default' basis
     # Kup K'down Kdown K'up
     # to the 'simple' basis
     # Kup Kdown K'up K'down
-    simple_basis_def = np.matrix([
-                           [1,0,0,0],
-                           [0,0,1,0],
-                           [0,0,0,1],
-                           [0,1,0,0],
-                       ])
+    simple_basis_def = np.array([
+        [1, 0, 0, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 1],
+        [0, 1, 0, 0],
+    ])
     def_basis_simple = np.linalg.inv(simple_basis_def)
     # Spin matrices in the 'default' basis. The inner np.kron matrices are in
     # the 'simple' basis.
