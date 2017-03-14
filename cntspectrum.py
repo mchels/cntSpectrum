@@ -3,6 +3,7 @@ import sympy as sy
 from sympy.physics.matrices import msigma
 from sympy.physics.quantum import TensorProduct
 from basis import simple_to_def, def_to_simple, sy_mat_to_np
+import base
 
 
 class cntSpectrum(object):
@@ -245,24 +246,16 @@ class cntSpectrum(object):
         spectrums = self.get_spectrums(B_fields, B_angles, filling)
         assert isinstance(filling, int)
         # filling==2 has its own Hamiltonian where each state holds two
-        # electrons. Thus, for filling==2 ONE state is occupied.
+        # electrons. Thus, for filling==2 ONE two-electron state is occupied.
         if filling == 2:
             n_occ_states = 1
         else:
             n_occ_states = filling
-        assert n_occ_states > 0
-        occ_Es = spectrums[...,:n_occ_states]
-        non_occ_Es = spectrums[...,n_occ_states:]
-        # Insert np.newaxis to calculate all combinations of occupied and
-        # unoccupied energies.
-        ex_spectrums = non_occ_Es[...,:,np.newaxis] - occ_Es[...,np.newaxis,:]
-        # Flatten the inner-most two dimensions.
-        newshape = spectrums.shape[:-1] + (-1,)
-        ex_spectrums = np.reshape(ex_spectrums, newshape=newshape)
-        if deltaSC is not None and BC is not None:
+        ex_spectrums = base.get_ex_spectrums(spectrums, n_occ_states,
+                                             get_neg=False)
+        if (deltaSC is not None) and (BC is not None):
             SC_gap = self._SC_gap(deltaSC, BC, B_fields, B_angles)
             ex_spectrums += SC_gap[...,np.newaxis]
-        ex_spectrums = np.sort(ex_spectrums, axis=-1)
         # Stack negative excitation energies with the positive ones.
         ex_spectrums = np.concatenate([ex_spectrums, -ex_spectrums], axis=-1)
         ex_spectrums += bias_offset
