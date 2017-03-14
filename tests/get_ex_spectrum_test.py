@@ -44,4 +44,4 @@ for B_type in ('B_field', 'B_field_perp', 'B_angle'):
         fname = '{}{}.dat'.format(filling, B_type)
         fpath = os.path.relpath('reference_data_get_ex_spectrum/' + fname)
         reference_data = np.loadtxt(fpath)
-        assert np.allclose(ex_spectrums.squeeze(), reference_data)
+        np.testing.assert_allclose(ex_spectrums.squeeze(), reference_data)

@@ -37,7 +37,7 @@ def do_tests():
             actual_output = foo.get_spin_vector(state)
             desired_output = case['output']
             try:
-                assert (actual_output == desired_output).all()
+                np.testing.assert_allclose(actual_output, desired_output)
             except AssertionError:
                 print('Assertion failed')
                 print('State ' + str(case['state']))
