@@ -155,9 +155,9 @@ class cntSpectrum(object):
 
         Returns
         -------
-        spectrum : ndarray
+        spectrums : ndarray
             If B_fields and B_angles are arrays:
-            The spectrum array has shape
+            The spectrums array has shape
             len(B_fields) x len(B_angles) x n_states
             where filling=(1,3): n_states=4; filling=2: n_states=6
         states : ndarray
@@ -220,8 +220,8 @@ class cntSpectrum(object):
 
         Returns
         -------
-        ex_spectrum : ndarray
-            Excitation spectrum.
+        ex_spectrums : ndarray
+            Excitation spectrums.
 
         Notes
         -----
@@ -270,7 +270,7 @@ class cntSpectrum(object):
 
     def get_hamils(self, B_fields, B_angles, filling):
         """
-        Get Hamiltonian for the given parameters.
+        Get Hamiltonians for the given parameters.
         The basis is Kup K'down Kdown K'up.
 
         Parameters
@@ -284,8 +284,8 @@ class cntSpectrum(object):
 
         Returns
         -------
-        hamil: ndarray
-            Hamiltonian for the given parameters.
+        hamils: ndarray
+            Hamiltonians for the given parameters.
         """
         # ravel ensures that B_fields and B_angles are iterable if they are not
         # already.
