@@ -7,7 +7,9 @@ from numpy import pi
 
 """
 This script tests the current get_ex_spectrums function against experimental
-data for a shell in the conduction band.
+data for a shell in the conduction band. The data is published in
+"Noncollinear Spin-Orbit Magnetic Fields in a Carbon Nanotube Double
+Quantum Dot", M. C. Hels et al. Phys. Rev. Lett. 117, 276802 (2016).
 """
 
 model_kw = {
