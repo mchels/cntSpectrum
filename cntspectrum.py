@@ -432,3 +432,5 @@ class cntSpectrum(object):
             return self._g_orb * self.mu_B
         else:
             return self._mu_orb
+
+print('wefoj')
