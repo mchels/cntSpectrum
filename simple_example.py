@@ -11,8 +11,7 @@ model_kw = {
 model = cntSpectrum(**model_kw)
 B_fields = 2
 B_angles = np.linspace(0, np.pi, 46)
-filling = 1
-spectrums = model.get_spectrums(B_fields, B_angles, filling)
+spectrums = model.get_spectrums(B_fields, B_angles, two_electron=False)
 # Plot spectrums.squeeze() instead of spectrums to remove single-dimensional
 # entries that arise because our B_fields is a number and not a list.
 fig, ax = plt.subplots()

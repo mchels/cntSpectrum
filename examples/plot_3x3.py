@@ -49,7 +49,7 @@ B_fields_dict = {
 
 # Choose whether to plot spectrum or ex_spectrum.
 # plot_func = model.get_spectrum
-plot_func = model.get_ex_spectrum
+plot_func = model.get_ex_spectrums
 
 fillings = (1, 2, 3)
 types = ('par', 'perp', 'angle')
@@ -70,4 +70,4 @@ for i, type in enumerate(types):
         ax.plot(B_list_for_plotting, data_for_plotting.squeeze())
 
 fig.tight_layout()
-fig.savefig('plot_3x3.pdf')
+plt.show()
