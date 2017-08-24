@@ -23,8 +23,7 @@ model_kw = {
 model = cntSpectrum(**model_kw)
 B_fields = 2
 B_angles = np.linspace(0, np.pi, 46)
-filling = 1
-spectrums = model.get_spectrums(B_fields, B_angles, filling)
+spectrums = model.get_spectrums(B_fields, B_angles, two_electron=False)
 fig, ax = plt.subplots()
 ax.plot(B_angles, spectrums.squeeze())
 ax.set_xlabel('Magnetic field angle (radians)')

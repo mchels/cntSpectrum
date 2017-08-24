@@ -29,14 +29,14 @@ model_kw = {
 }
 model = cntSpectrum(**model_kw)
 spin = cntSpin()
-filling = 1
 B_fields = np.linspace(0, 5, 101)
 # The upper limit is np.pi*1.01 to avoid having an angle of exactly pi/2. At
 # this angle the states are degenerate in pairs at any magnitude of the
 # B_field. Since any combination of the two spin states within a degenerate
 # pair is an energy eigenstate the spin expectation value is zero (I think).
 B_angles = np.linspace(0, np.pi*1.01, 91)
-spectrum, eigenvectors = model.get_spectrums(B_fields, B_angles, filling,
+spectrum, eigenvectors = model.get_spectrums(B_fields, B_angles,
+                                             two_electron=False,
                                              get_eigenvectors=True)
 spin_vectors = spin.get_spin_vectors_from_eigenstates(eigenvectors)
 for i, B_field in enumerate(B_fields):
